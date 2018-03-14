@@ -1,4 +1,13 @@
-function escapeFunction () {
+//add to head of website
+
+/*
+<meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv='cache-control' content='no-cache'>
+<meta http-equiv='expires' content='0'>
+<meta http-equiv='pragma' content='no-cache'>
+*/
+
+function escapeFunction() {
   //select document body
   var wholeDoc = document.querySelector('body');
   //create new link element
@@ -37,6 +46,8 @@ function escapeFunction () {
   style.zIndex = "999999999999999";
   //give some space around the text
   style.padding = "20px";
+
+  /*
   //add a click event listener to the button
   newButton.addEventListener("click", function(event) {
     //prevent default link functionality
@@ -45,48 +56,41 @@ function escapeFunction () {
     location.replace("https://www.google.com");
   });
 
-
+*/
 
   //select all link elements on page into an array like object
   var els = document.querySelectorAll('a');
   //loop through the array like variable above of all links on the page
   for (var i = 0; i < els.length; i++) {
-    //assign a local variable--doing this instead of ES6 let for backwards compatability
+    //Would use let but want older browsers to be compatible
     var k = i;
-    //attach an event listener to each variable
-    els[k].addEventListener("click", function(event) {
-      //stop normal link navigation
-      event.preventDefault();
-      //assign the path object to a variable
-      var paths = event.path;
-      //make sure there is a path on the object
-      if (paths != undefined || paths != null) {
-        //loop through the path object
-        for (var j = 0; j < paths.length; j++) {
-          //loop through the object and look for a path with a valid link type
-          if (paths[j].localName == "a") {
-            //make sure that the link type has a valid href
-            if (paths[j].href != "#" && paths[j].href != null && paths[j].href != undefined) {
-              //replace current location
-              location.replace(paths[j].href);
-            }
-          }
-        }
-      } else {
-        //check to make sure it's not an empty link, and that there's a valid link
-        if (event.target.href != "#" && event.target.href != null && event.target.href != undefined) {
-          //replace current history object
-          location.replace(event.target.href)
-        }
-      }
-    });
-  }
-}
+    capture the link before the event
+    var linkTarget = els[k].getAttribute("href");
+    //standar event listener--checking to see if need fallback
+    if (document.addEventListener) {
+      //instance of link add listener
+      els[k].addEventListener("click", function(event) {
+        //stop normal site visit
+        event.preventDefault();
+        visit the intended link by replacing the current page
+        location.replace(linkTarget);
+      })
+    } else {
+      document.attachEvent('click', function(event) {
+        event.preventDefault();
+        location.replace(linkTarget);
+      })
+    }
+  };
+};
 //load function when document has finished loading
-if (document.readyState != 'loading') escapeFunction();
-//listen for docuemnt to load -- check if browser supports document.addEventListener
-else if (document.addEventListener) document.addEventListener('DOMContentLoaded', escapeFunction);
-//for other browsers, attach event listener (IE) and load when ready
-else document.attachEvent('onreadystatechange', function() {
-  if (document.readyState == 'complete') escapeFunction();
-});
+if (document.readyState != 'loading')
+  escapeFunction(); //listen for docuemnt to load -- check if browser supports document.addEventListener
+else if (document.addEventListener)
+  document.addEventListener('DOMContentLoaded', escapeFunction); //for other browsers, attach event listener (IE) and load when ready
+else
+  document.attachEvent('onreadystatechange', function() {
+    if (document.readyState == 'complete')
+      escapeFunction();
+    }
+  );
